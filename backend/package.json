@@ -1,0 +1,16 @@
+{
+  "name": "warranty-intelligence-engine",
+  "version": "1.5.0",
+  "description": "Autonomous Warranty Intelligence Agent — local, free, production-grade warranty reasoning system",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/run-all.js && node tests/run-agent-tests.js",
+    "test:phase1": "node tests/run-all.js",
+    "test:phase1.5": "node tests/run-agent-tests.js"
+  },
+  "dependencies": {
+    "tesseract.js": "^5.1.0"
+  },
+  "license": "ISC"
+}

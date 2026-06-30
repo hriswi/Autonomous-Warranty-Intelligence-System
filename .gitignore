@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+.firebase/
+*.log
+.DS_Store
+firebase-debug.log
+functions/node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.firebase/
+frontend/functions/node_modules/
+backend/node_modules/

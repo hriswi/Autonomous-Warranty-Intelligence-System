@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// ──────────────────────────────────────────────────────────────────────────
+// FIRESTORE SECURITY RULES
+// Strict per-user data isolation. No cross-account access possible.
+// ──────────────────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ── Users collection ──────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read, update: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow delete: if false; // account deletion goes through Cloud Function
+    }
+
+    // ── Products collection ───────────────────────────────────────────────
+    // Each product document has a userId field; only the owner may access it.
+    match /products/{productId} {
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        // Basic schema sanity checks server-side
+        && request.resource.data.productName is string
+        && request.resource.data.productName.size() > 0
+        && request.resource.data.productName.size() < 300;
+    }
+
+    // ── Repair history sub-collection ─────────────────────────────────────
+    match /products/{productId}/repairs/{repairId} {
+      allow read, write: if isSignedIn()
+        && get(/databases/$(database)/documents/products/$(productId)).data.userId == request.auth.uid;
+    }
+
+    // ── Notifications ──────────────────────────────────────────────────────
+    match /notifications/{notifId} {
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

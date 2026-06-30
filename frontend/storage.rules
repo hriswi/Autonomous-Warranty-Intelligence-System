@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// ──────────────────────────────────────────────────────────────────────────
+// FIREBASE STORAGE SECURITY RULES
+// Enforces the 3MB hard limit and allowed MIME types at the storage layer,
+// independent of any client-side validation. No request can bypass this.
+// ──────────────────────────────────────────────────────────────────────────
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Per-user invoice/document uploads.
+    // Path: users/{uid}/invoices/{fileName}
+    match /users/{userId}/invoices/{fileName} {
+
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function isAllowedSize() {
+        // 3 MB hard limit — mirrors frontend MAX_FILE_SIZE_BYTES exactly.
+        return request.resource.size <= 3 * 1024 * 1024;
+      }
+
+      function isAllowedType() {
+        return request.resource.contentType in [
+          'application/pdf',
+          'image/jpeg',
+          'image/png',
+          'image/webp'
+        ];
+      }
+
+      allow read: if isOwner();
+      allow write: if isOwner() && isAllowedSize() && isAllowedType();
+      allow delete: if isOwner();
+    }
+
+    // Per-user profile images (avatars) — smaller limit, images only.
+    match /users/{userId}/avatar/{fileName} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      allow read: if isOwner();
+      allow write: if isOwner()
+        && request.resource.size <= 1 * 1024 * 1024
+        && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp'];
+      allow delete: if isOwner();
+    }
+
+    // Deny everything else by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

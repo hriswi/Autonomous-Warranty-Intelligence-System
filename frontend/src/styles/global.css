@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Equinox Font ─────────────────────────────────────────────────────── */
+/* Equinox is loaded via CDN. If unavailable in deployment, add the font
+   files to /public/fonts/ and adjust the src URLs below. */
+@font-face {
+  font-family: 'Equinox';
+  src: url('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/orbitron/Orbitron%5Bwght%5D.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Design Tokens ────────────────────────────────────────────────── */
+:root {
+  --color-black:        #000000;
+  --color-near-black:   #0A0A0A;
+  --color-dark:         #111111;
+  --color-soft-gray:    #666666;
+  --color-light-gray:   #D9D9D9;
+  --color-white:        #FFFFFF;
+
+  --border-subtle:      1px solid rgba(255,255,255,0.06);
+  --border-medium:      1px solid rgba(255,255,255,0.12);
+  --border-strong:      1px solid rgba(255,255,255,0.22);
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+  --radius-xl:  32px;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md:  0 4px 24px rgba(0,0,0,0.6);
+  --shadow-lg:  0 16px 64px rgba(0,0,0,0.7);
+
+  --transition-fast:   150ms cubic-bezier(0.4,0,0.2,1);
+  --transition-base:   250ms cubic-bezier(0.4,0,0.2,1);
+  --transition-slow:   400ms cubic-bezier(0.4,0,0.2,1);
+}
+
+.light {
+  --color-near-black:   #FFFFFF;
+  --color-dark:         #F5F5F5;
+  --color-soft-gray:    #888888;
+  --color-light-gray:   #333333;
+  --color-white:        #000000;
+  --border-subtle:      1px solid rgba(0,0,0,0.07);
+  --border-medium:      1px solid rgba(0,0,0,0.12);
+  --border-strong:      1px solid rgba(0,0,0,0.2);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-near-black);
+  color: var(--color-white);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Equinox headings ─────────────────────────────────────────────────── */
+.font-equinox {
+  font-family: 'Orbitron', 'Equinox', sans-serif;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+h1, h2, h3, .heading {
+  font-family: 'Orbitron', 'Equinox', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* ── Selection ────────────────────────────────────────────────────────── */
+::selection { background: rgba(255,255,255,0.15); color: var(--color-white); }
+
+/* ── Glass components ─────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.03);
+  border: var(--border-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-medium {
+  background: rgba(255,255,255,0.05);
+  border: var(--border-medium);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.08);
+  border: var(--border-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── Interactive states ───────────────────────────────────────────────── */
+.interactive {
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  cursor: pointer;
+}
+
+.interactive:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.16);
+}
+
+.interactive:active { transform: scale(0.99); }
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.btn-primary:hover   { opacity: 0.88; }
+.btn-primary:active  { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--color-white);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 11px 28px;
+  border-radius: var(--radius-sm);
+  border: var(--border-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+.btn-ghost:hover   { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25); }
+.btn-ghost:active  { transform: scale(0.98); }
+
+/* ── Form inputs ──────────────────────────────────────────────────────── */
+.input-field {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.input-field::placeholder { color: var(--color-soft-gray); }
+.input-field:focus {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.06);
+}
+.input-field:hover:not(:focus) { border-color: rgba(255,255,255,0.12); }
+
+/* ── Risk badges ──────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.badge-critical { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.badge-high     { background: rgba(255,255,255,0.07); color: #D9D9D9; border: 1px solid rgba(255,255,255,0.14); }
+.badge-medium   { background: rgba(255,255,255,0.05); color: #999; border: 1px solid rgba(255,255,255,0.1); }
+.badge-low      { background: rgba(255,255,255,0.03); color: #666; border: 1px solid rgba(255,255,255,0.07); }
+.badge-clean    { background: rgba(255,255,255,0.03); color: #777; border: 1px solid rgba(255,255,255,0.07); }
+
+/* ── Data cards ───────────────────────────────────────────────────────── */
+.data-card {
+  background: rgba(255,255,255,0.025);
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+.data-card:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* ── Dividers ─────────────────────────────────────────────────────────── */
+.divider { border: none; border-top: var(--border-subtle); margin: 0; }
+
+/* ── Page transitions ─────────────────────────────────────────────────── */
+.page-enter { animation: fadeUp 0.4s ease forwards; }
+
+/* ── Progress bar ─────────────────────────────────────────────────────── */
+.progress-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-white);
+  border-radius: 1px;
+  transition: width var(--transition-slow);
+}
+
+/* ── Confidence indicator ─────────────────────────────────────────────── */
+.confidence-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.confidence-high   { background: rgba(255,255,255,0.8); }
+.confidence-medium { background: rgba(255,255,255,0.45); }
+.confidence-low    { background: rgba(255,255,255,0.2); }
+
+/* ── Light mode overrides ─────────────────────────────────────────────── */
+.light body { background: #FAFAFA; color: #0A0A0A; }
+.light .glass { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.07); }
+.light .glass-medium { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+.light .input-field { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: #0A0A0A; }
+.light .input-field:focus { border-color: rgba(0,0,0,0.3); background: rgba(0,0,0,0.06); }
+.light .btn-primary { background: #0A0A0A; color: #FFFFFF; }
+.light .btn-ghost { color: #0A0A0A; border-color: rgba(0,0,0,0.15); }
+.light .btn-ghost:hover { background: rgba(0,0,0,0.05); }
+.light .data-card { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.07); }
+.light .data-card:hover { background: rgba(0,0,0,0.04); }
+
+/* ── Reduced motion ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
