@@ -62,10 +62,16 @@ rm -rf frontend/src/lib/engine/tests frontend/src/lib/engine/package.json
 - Firebase Hosting — static frontend
 - Firebase Auth — email/password + Google sign-in
 - Firestore — per-user product data, locked by security rules in `frontend/firestore.rules`
-- Firebase Storage — invoice uploads, 3MB hard limit enforced in `frontend/storage.rules`
-- Cloud Functions — server-side upload validation mirror (`frontend/functions/`)
+- Backend API service — Node/Express service deployed separately to Render or Railway from `backend/server.js`
+    (replaces Firebase Cloud Functions for API hosting)
+
+The Firebase Functions dependency has been removed from the backend deployment path. The new backend service exposes REST endpoints for OCR, invoice intelligence, fraud detection, risk scoring, warranty advisory, and the AI agent.
 
 ```bash
+cd backend
+npm install
+npm start
+
 cd frontend
 npm run build
 firebase deploy
