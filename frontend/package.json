@@ -17,7 +17,8 @@
     "lucide-react": "^0.378.0",
     "zustand": "^4.5.4",
     "react-dropzone": "^14.2.3",
-    "date-fns": "^3.6.0"
+    "date-fns": "^3.6.0",
+    "tesseract.js": "^5.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Package, Shield, AlertTriangle, TrendingUp, Clock,
-  Edit2, Trash2, FileText, Calendar, Hash, Tag, Store,
-  CheckCircle, XCircle, HelpCircle, ChevronRight, Plus,
+  Trash2, FileText, Calendar, Hash, Tag, Store,
+  CheckCircle, XCircle, HelpCircle, ChevronRight,
   ExternalLink, Download, MessageSquare,
 } from 'lucide-react';
 import { useStore } from '../../store/store.js';
@@ -213,16 +213,11 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Link
-            to={`/dashboard/products/${id}/edit`}
-            className="btn-ghost text-xs py-2 px-4"
-          >
-            <Edit2 size={13} /> Edit
-          </Link>
           <button
             onClick={() => setShowConfirm(true)}
             className="p-2.5 rounded-[8px] text-white/25 hover:text-white/60 transition-colors"
             style={{ border: '1px solid rgba(255,255,255,0.07)' }}
+            title="Delete product"
           >
             <Trash2 size={15} />
           </button>
@@ -300,9 +295,6 @@ export default function ProductDetailPage() {
           <div className="data-card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-equinox text-white/70 text-xs tracking-[0.12em]">REPAIR HISTORY</h2>
-              <Link to={`/dashboard/products/${id}/repair`} className="text-white/30 text-xs hover:text-white/60 transition-colors flex items-center gap-1">
-                <Plus size={12} /> Add
-              </Link>
             </div>
             {(!product.repairHistory || product.repairHistory.length === 0) ? (
               <p className="text-white/20 text-sm">No repairs recorded.</p>

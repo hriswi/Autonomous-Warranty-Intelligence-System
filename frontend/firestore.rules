@@ -20,7 +20,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, update: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow delete: if false; // account deletion goes through Cloud Function
+      allow delete: if isOwner(userId);
     }
 
     // ── Products collection ───────────────────────────────────────────────

@@ -1,6 +1,6 @@
 /**
  * AgentPage.jsx
- * Full AI assistant interface connected to the backend WarrantyAgent.
+ * Full AI assistant interface connected to the local WarrantyAgent engine.
  * Conversation memory, typing animation, suggested prompts, reasoning trace toggle.
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';

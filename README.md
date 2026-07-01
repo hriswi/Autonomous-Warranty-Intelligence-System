@@ -1,40 +1,35 @@
 # Autonomous Warranty Intelligence System
 
 A local-first, zero-cost warranty tracking platform with a fully autonomous,
-rule-based AI reasoning agent. No paid APIs, no cloud LLMs — every
-intelligence decision (OCR parsing, classification, fraud detection, risk
-scoring, claim eligibility, conversational reasoning) runs as real,
+rule-based AI reasoning agent. No paid APIs, no cloud LLMs, no backend server —
+every intelligence decision (OCR parsing, classification, fraud detection, risk
+scoring, claim eligibility, conversational reasoning) runs in the browser as
 deterministic JavaScript.
 
 ## Structure
 
 ```
 Autonomous-Warranty-Intelligence-System/
-├── frontend/          Vite + React app (landing, auth, dashboard, AI agent UI)
-├── backend/           Smart Warranty Intelligence Engine (Phase 1 + 1.5)
-├── docs/              Additional documentation
-└── architecture/      Architecture notes and diagrams
+├── frontend/          Vite + React app (UI + local AI engine)
+│   └── src/lib/engine/  Browser-side intelligence modules
+└── backend/           Engine source + test harness (no server)
 ```
 
-## Backend — `backend/`
+## Architecture
 
-Pure Node.js ESM modules, zero external AI dependency.
-
-- `ocr/` — Tesseract.js integration (real OCR pipeline)
-- `parsers/` — Invoice field extraction, warranty duration detection
-- `classifier/` — Product category + brand classification
-- `rules-engine/` — Warranty claim eligibility decision engine + rules DB
-- `ai-engine/` — Risk scoring, fraud detection, advisor engine, pipeline orchestrator
-- `ai-engine/assistant/` — Autonomous Warranty Intelligence Agent (NLU, knowledge graph,
-  multi-stage reasoning, memory, failure prediction, autonomous monitoring,
-  external knowledge retrieval)
-- `tests/` — 186 passing tests (`run-all.js` for Phase 1, `run-agent-tests.js` for Phase 1.5)
-
-```bash
-cd backend
-npm install
-npm test
 ```
+Vercel Frontend
+    ↓
+React App
+    ↓
+Browser-side Local AI Engine (Tesseract OCR + rule engines)
+    ↓
+Firebase Authentication
+    ↓
+Firestore Database
+```
+
+No Express, Render, Cloud Functions, or HTTP API layer.
 
 ## Frontend — `frontend/`
 
@@ -45,42 +40,38 @@ cd frontend
 npm install
 cp .env.example .env.local   # fill in Firebase config
 npm run dev
+npm run build
 ```
 
-The frontend imports the backend engine directly from a local path — see
-`frontend/src/lib/warrantyEngine.js`. Before building the frontend, copy the
-backend engine into `frontend/src/lib/engine/` (excluding `tests/` and
-`package.json`), or configure a workspace/symlink so the import resolves:
+The intelligence engine lives at `frontend/src/lib/engine/` and is re-exported
+via `frontend/src/lib/warrantyEngine.js`.
 
-```bash
-cp -r backend/* frontend/src/lib/engine/
-rm -rf frontend/src/lib/engine/tests frontend/src/lib/engine/package.json
-```
+## Backend tests — `backend/`
 
-## Deployment (free tier only)
-
-- Firebase Hosting — static frontend
-- Firebase Auth — email/password + Google sign-in
-- Firestore — per-user product data, locked by security rules in `frontend/firestore.rules`
-- Backend API service — Node/Express service deployed separately to Render or Railway from `backend/server.js`
-    (replaces Firebase Cloud Functions for API hosting)
-
-The Firebase Functions dependency has been removed from the backend deployment path. The new backend service exposes REST endpoints for OCR, invoice intelligence, fraud detection, risk scoring, warranty advisory, and the AI agent.
+Pure Node.js ESM modules for running the engine test suite locally:
 
 ```bash
 cd backend
 npm install
-npm start
+npm test
+```
 
+## Deployment
+
+- **Vercel** — static frontend (`frontend/vercel.json`)
+- **Firebase Auth** — email/password + Google sign-in
+- **Firestore** — per-user product data (`frontend/firestore.rules`)
+- **Firebase Storage** — invoice file uploads (`frontend/storage.rules`)
+
+```bash
 cd frontend
 npm run build
-firebase deploy
+firebase deploy --only hosting,firestore,storage
 ```
 
 ## Security notes
 
-- 3MB file upload limit enforced at 5 independent layers: dropzone validator,
-  magic-byte signature check, OCR pipeline guard, pre-upload guard, and
-  Firebase Storage rules — plus a Cloud Function with streaming 413 enforcement.
+- 3MB file upload limit enforced at dropzone validator, magic-byte check,
+  OCR pipeline guard, pre-upload guard, and Firebase Storage rules.
 - Firestore/Storage rules enforce strict per-user data isolation.
-- No invoice or product data is ever sent to a third-party AI API.
+- No invoice or product data is sent to third-party AI APIs.

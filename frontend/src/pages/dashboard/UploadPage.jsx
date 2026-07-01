@@ -101,6 +101,7 @@ export default function UploadPage() {
   const [fieldConf,   setFieldConf]   = useState({});
   const [overallConf, setOverallConf] = useState(null);
   const [fraudWarning,setFraudWarning]= useState(null);
+  const [pipelineResult, setPipelineResult] = useState(null);
   const [validationError, setValidationError] = useState('');
 
   const [form, setForm] = useState({
@@ -145,6 +146,7 @@ export default function UploadPage() {
     setFieldConf({});
     setOverallConf(null);
     setFraudWarning(null);
+    setPipelineResult(null);
 
     if (f.type.startsWith('image/')) {
       setPreview(URL.createObjectURL(f));
@@ -166,29 +168,29 @@ export default function UploadPage() {
 
   // ── OCR pipeline — validates size AGAIN before processing ─────────────
   const runOcrPipeline = async (f) => {
-    // Layer 3: OCR entry guard
     const guard = validateFileSync(f);
     if (!guard.valid) { setValidationError(guard.error); return; }
 
     setProcessing(true); setProgress(0);
     try {
-      setStage('Reading file…'); setProgress(15);
-      const text = await readFileAsText(f);
+      setStage('Running OCR…'); setProgress(20);
 
-      setStage('Parsing invoice…'); setProgress(45);
-      // Dynamic import so the engine is code-split and not bundled into initial load
-      let result = {}, pipeline = { invoice: {}, fraud: null };
-      try {
-        const { parseInvoice } = await import('../../lib/warrantyEngine.js');
-        const { processInvoiceText } = await import('../../lib/warrantyEngine.js');
-        result   = parseInvoice(text);
-        setProgress(65); setStage('Running intelligence pipeline…');
-        pipeline = await processInvoiceText(text, { referenceDate: new Date() });
-      } catch { /* engine not bundled yet — use result only */ }
+      const { processInvoiceFile } = await import('../../lib/warrantyEngine.js');
+      setStage('Running intelligence pipeline…'); setProgress(55);
+
+      const pipeline = await processInvoiceFile(f, { referenceDate: new Date() });
+
+      if (!pipeline?.success) {
+        setStage('Processing failed — fill in details manually.');
+        setValidationError(pipeline?.error || 'Could not extract invoice data from this file.');
+        setProgress(0);
+        return;
+      }
 
       setProgress(100); setStage('Complete');
+      setPipelineResult(pipeline);
 
-      const inv = pipeline?.invoice || result;
+      const inv = pipeline.invoice || {};
       setExtracted(inv);
       setFieldConf(inv?.fieldConfidence || {});
       setOverallConf(inv?.overallConfidence ?? null);
@@ -207,19 +209,16 @@ export default function UploadPage() {
       }));
     } catch (err) {
       setStage('Processing failed — fill in details manually.');
+      setValidationError(
+        f.type === 'application/pdf'
+          ? 'PDF OCR requires a PDF renderer. Upload a JPG, PNG, or WEBP invoice image instead.'
+          : 'OCR processing failed. You can still fill in the details manually.'
+      );
       setProgress(0);
     } finally {
       setProcessing(false);
     }
   };
-
-  const readFileAsText = (f) =>
-    new Promise((res) => {
-      if (f.type === 'application/pdf') { res(`Invoice file: ${f.name}`); return; }
-      const r = new FileReader();
-      r.onload = (e) => res(e.target.result || '');
-      r.readAsText(f);
-    });
 
   // ── Save — validates size AGAIN before Firebase upload ────────────────
   const handleSave = async (e) => {
@@ -256,8 +255,14 @@ export default function UploadPage() {
         invoiceUrl,
         overallConfidence: overallConf,
         fieldConfidence:   fieldConf,
-        fraudWarning,
-        riskScore:         null,
+        fraudWarning:      pipelineResult?.fraud?.warningLevel ?? fraudWarning,
+        fraudScore:        pipelineResult?.fraud?.fraudScore ?? null,
+        fraudSignals:      pipelineResult?.fraud?.signals ?? [],
+        riskScore:         pipelineResult?.risk?.riskScore ?? null,
+        riskRecommendation: pipelineResult?.risk?.recommendation ?? null,
+        risk:              pipelineResult?.risk ?? null,
+        fraud:             pipelineResult?.fraud ?? null,
+        advisory:          pipelineResult?.advisory ?? null,
         createdAt:         serverTimestamp(),
         updatedAt:         serverTimestamp(),
       };
@@ -280,7 +285,7 @@ export default function UploadPage() {
     e.stopPropagation();
     setFile(null); setPreview(null);
     setExtracted(null); setFieldConf({});
-    setOverallConf(null); setValidationError('');
+    setOverallConf(null); setPipelineResult(null); setValidationError('');
   };
 
   return (

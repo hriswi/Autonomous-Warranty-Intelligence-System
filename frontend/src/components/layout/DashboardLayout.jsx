@@ -37,8 +37,12 @@ function NavItem({ to, icon: Icon, label, end, onClick }) {
       ].join(' ')}
       style={({ isActive }) => ({ fontWeight: isActive ? 500 : 400 })}
     >
-      <Icon size={16} strokeWidth={isActive => isActive ? 2 : 1.5} />
-      <span>{label}</span>
+      {({ isActive }) => (
+        <>
+          <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
+          <span>{label}</span>
+        </>
+      )}
     </NavLink>
   );
 }
